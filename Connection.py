@@ -28,11 +28,11 @@ class Connection():
             raise Exception(f"Message type \"{type}\" is reserved! Please, use specific method.")
 
         id = str(uuid.uuid4())
-        confirmation_task = asyncio.Event()
+        confirmation_event = asyncio.Event()
         try:
-            self.messages[id] = {'id': id, 'type': type, 'data': data, 'confirmation_task': confirmation_task}
+            self.messages[id] = {'id': id, 'type': type, 'data': data, 'confirmation_event': confirmation_event}
             await self.websocket.send(json.dumps({'id': id, 'type': type, 'data': data}))
-            await confirmation_task.wait()
+            await confirmation_event.wait()
             status = self.messages[id]['status']
             return status
         finally:
@@ -48,7 +48,7 @@ class Connection():
             if message['type'] == SUCCESS_TYPE or message['type'] == FAILURE_TYPE:
                 response_message_id = message['data']
                 self.messages[response_message_id]['status'] = message['type'] == SUCCESS_TYPE
-                self.messages[response_message_id]['confirmation_task'].set()
+                self.messages[response_message_id]['confirmation_event'].set()
                 continue
             yield message
 
