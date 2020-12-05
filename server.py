@@ -16,19 +16,25 @@ class FailedAction(Exception):
     pass
 
 
-async def send(sender_connection: Connection, data: dict):
+async def send_action(sender_connection: Connection, data: dict):
+    """
+    This action sends a message to a recipient form the sender.
+    If the recipient is not available it waits for the recipient to become available.
+    If message the recipient does not confirm the reception the action fails.
+    """
     recipient_connection = await clients.get_connection_by_id(data['recipient_id'])
     received_by_recipient = await recipient_connection.send('message', data['message'])
     if not received_by_recipient:
         raise FailedAction()
 
-
 actions = {
-    'send': send
+    'send': send_action
 }
 
-
 async def handler(websocket: websockets.WebSocketServerProtocol, path):
+    """
+    This function is responsible for registering clients and dispatching incoming messages to appropriate actions.
+    """
     connection = Connection(websocket)
     client_id = await clients.register(connection)
     try:
@@ -38,9 +44,9 @@ async def handler(websocket: websockets.WebSocketServerProtocol, path):
                 if message_type not in actions:
                     raise FailedAction
                 await actions.get(message_type)(connection, message['data'])
-                await connection.success(message['id'])
+                await connection.report_success(message['id'])
             except FailedAction:
-                await connection.failure(message['id'])
+                await connection.report_failure(message['id'])
             except:
                 raise
     except websockets.ConnectionClosedError:

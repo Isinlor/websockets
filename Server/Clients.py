@@ -4,6 +4,9 @@ from typing import Dict
 from Connection import Connection
 
 class Clients():
+    """
+    This class provides away of tracking client connections and other client related information.
+    """
 
     clients_by_id = {}
     waiting_for_registration_by_id:Dict[str, asyncio.Event] = {}
@@ -27,7 +30,7 @@ class Clients():
         self.clients_by_id[info['id']] = {'connection': connection, 'info': info}
         if info['id'] in self.waiting_for_registration_by_id:
             self.waiting_for_registration_by_id[info['id']].set()
-        await connection.success(message['id'])
+        await connection.report_success(message['id'])
         print(f"Client {info['first_name']} {info['last_name']} registered.")
         return info['id']
 

@@ -10,6 +10,22 @@ FAILURE_TYPE = 'failure'
 
 
 class Connection():
+    """
+    This class provides a wrapper around websocket protocol.
+    The main purpose of this class is to provide a way to keep track of the status of sent messages.
+    websocket.send() does not provide a way for the other party to report success or failure.
+
+    This class keeps track of messages by assigning them unique ids.
+    The messages are stored awaiting for report of success or failure i.e. response event.
+
+    The recipient can report status of specific message by calling:
+        - report_success(message_id)
+        - report_failure(message_id)
+
+    The sending party needs to monitor all incoming messages looking for the reports.
+    Meanwhile the rest of communication must be allowed to continue uninterrupted.
+    The handling of reports and other communication is done in receive() and receive_many().
+    """
     messages = dict()
 
     def __init__(self, websocket: WebSocketCommonProtocol):
@@ -28,11 +44,11 @@ class Connection():
             raise Exception(f"Message type \"{type}\" is reserved! Please, use specific method.")
 
         id = str(uuid.uuid4())
-        confirmation_event = asyncio.Event()
+        response_event = asyncio.Event()
         try:
-            self.messages[id] = {'id': id, 'type': type, 'data': data, 'confirmation_event': confirmation_event}
+            self.messages[id] = {'id': id, 'type': type, 'data': data, 'response_event': response_event}
             await self.websocket.send(json.dumps({'id': id, 'type': type, 'data': data}))
-            await confirmation_event.wait()
+            await response_event.wait()
             status = self.messages[id]['status']
             return status
         finally:
@@ -48,12 +64,12 @@ class Connection():
             if message['type'] == SUCCESS_TYPE or message['type'] == FAILURE_TYPE:
                 response_message_id = message['data']
                 self.messages[response_message_id]['status'] = message['type'] == SUCCESS_TYPE
-                self.messages[response_message_id]['confirmation_event'].set()
+                self.messages[response_message_id]['response_event'].set()
                 continue
             yield message
 
-    async def success(self, id: str):
+    async def report_success(self, id: str):
         await self.websocket.send(json.dumps({'id': str(uuid.uuid4()), 'type': SUCCESS_TYPE, 'data': id}))
 
-    async def failure(self, id: str):
+    async def report_failure(self, id: str):
         await self.websocket.send(json.dumps({'id': str(uuid.uuid4()), 'type': FAILURE_TYPE, 'data': id}))

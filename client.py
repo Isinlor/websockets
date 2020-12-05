@@ -18,6 +18,7 @@ async def client():
             connection.send('send', {'recipient_id': recipient, 'message': f"Some random message from {name}..."})
         )
 
+
 async def register(connection: Connection, name: str):
     await connection.send_with_retry(
         'registration', {'id': name, 'first_name': name, 'last_name': name, 'public_key': ''},
@@ -25,14 +26,15 @@ async def register(connection: Connection, name: str):
     )
     print("Registered.")
 
+
 async def receive_messages(connection: Connection):
     async for message in connection.receive_many():
         try:
             print(message)
-            await connection.success(message['id'])
+            await connection.report_success(message['id'])
         except:
             print("Failed to receive message...")
-            await connection.failure(message['id'])
+            await connection.report_failure(message['id'])
 
 
 try:
