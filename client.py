@@ -41,30 +41,36 @@ actions_info = [re.findall(r'\[(.*?)\]', action) for action in actions]
 async def client():
     uri = "ws://localhost:8765"
     async with websockets.connect(uri) as websocket:
-
         connection = Connection(websocket)
 
         await asyncio.gather(
             register(connection, id, first_name, last_name, public_key),  # Register at the server
             receive_messages(connection),  # Receive messages
             # TODO: recipient can be specified also by first and last name
-            *(connection.send('send', {'recipient_id': action_info[0], 'message': action_info[1]}) for action_info in
-              actions_info)  # Do the actions specified in the configuration file
+            # Do the actions specified in the configuration file
+            *(send_message(connection, recipient_id=action[0], message=action[1]) for action in actions_info)
         )
 
 
 async def register(connection: Connection, id: str, first_name: str, last_name: str, public_key: str):
-    await connection.send_with_retry(
-        'registration', {'id': id, 'first_name': first_name, 'last_name': last_name, 'public_key': public_key},
-        max_tries=3, backoff=1
-    )
-    print("Registered.")
+    client_info = {'id': id, 'first_name': first_name, 'last_name': last_name, 'public_key': public_key}
+    if await connection.send(client_info, max_tries=3):
+        print("Registered.")
+    else:
+        print("Failed to register.")
+        exit(1)
+
+
+async def send_message(connection: Connection, recipient_id: str, message: str):
+    # public_key = await connection.action('get_public_key', recipient_id)
+    # print(public_key)
+    await connection.action('send_message', {'recipient_id': recipient_id, 'message': message})
 
 
 async def receive_messages(connection: Connection):
     async for message in connection.receive_many():
         try:
-            print(message['data'])
+            print(message['payload'])
             await connection.report_success(message['id'])
         except:
             print("Failed to receive message...")

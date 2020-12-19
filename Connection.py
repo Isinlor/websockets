@@ -5,9 +5,12 @@ from typing import Any
 
 from websockets import WebSocketCommonProtocol
 
-SUCCESS_TYPE = 'success'
-FAILURE_TYPE = 'failure'
+REQUEST_TYPE = 'request'
+RESPONSE_TYPE = 'response'
 
+class FailedRequest(Exception):
+    def __init__(self, response_payload: Any = None):
+        self.response_payload = response_payload
 
 class Connection():
     """
@@ -26,33 +29,57 @@ class Connection():
     Meanwhile the rest of communication must be allowed to continue uninterrupted.
     The handling of reports and other communication is done in receive() and receive_many().
     """
-    messages = dict()
+    requests = dict()
+    responses = dict()
 
     def __init__(self, websocket: WebSocketCommonProtocol):
         self.websocket = websocket
 
-    async def send_with_retry(self, type: str, data: Any, max_tries: int, backoff: float) -> bool:
-        for _ in range(0, max_tries):
-            sent = await self.send(type, data)
-            if sent:
-                return True
-            await asyncio.sleep(backoff)
-        return False
+    async def action(self, action: str, data: Any, *args, **kwargs):
+        return await self.request_with_retry({'action': action, 'data': data}, *args, **kwargs)
 
-    async def send(self, type: str, data: Any) -> bool:
-        if type == SUCCESS_TYPE or type == FAILURE_TYPE:
-            raise Exception(f"Message type \"{type}\" is reserved! Please, use specific method.")
+    async def send(self, payload: Any, *args, **kwargs) -> bool:
+        try:
+            await self.request_with_retry(payload, *args, **kwargs)
+            return True
+        except:
+            return False
+
+    async def request_with_retry(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
+        for _ in range(0, max_tries):
+            try:
+                response = await self.request(payload)
+                return response
+            except:
+                await asyncio.sleep(backoff)
+        raise FailedRequest(f"Request failed after {max_tries} attempts!");
+
+    async def request(self, payload: Any) -> Any:
 
         id = str(uuid.uuid4())
-        response_event = asyncio.Event()
+
         try:
-            self.messages[id] = {'id': id, 'type': type, 'data': data, 'response_event': response_event}
-            await self.websocket.send(json.dumps({'id': id, 'type': type, 'data': data}))
+            response_event = asyncio.Event()
+            envelope = {'id': id, 'type': REQUEST_TYPE, 'payload': payload}
+            self.requests[id] = {**envelope, 'response_event': response_event}
+            await self.websocket.send(json.dumps(envelope))
             await response_event.wait()
-            status = self.messages[id]['status']
-            return status
+            response = self.responses[id]
+        except Exception as exception:
+            raise FailedRequest(exception)
         finally:
-            del self.messages[id]
+            del self.requests[id]
+            del self.responses[id]
+
+        if not response['success']:
+            raise FailedRequest(response_payload=response['payload'])
+
+        return response['payload']
+
+    async def response(self, request_id: str, success: bool, payload: Any = None) -> None:
+        await self.websocket.send(json.dumps(
+            {'id': request_id, 'type': RESPONSE_TYPE, 'success': success, 'payload': payload}
+        ))
 
     async def receive(self) -> dict:
         async for message in self.receive_many():
@@ -61,15 +88,15 @@ class Connection():
     async def receive_many(self):
         async for message_string in self.websocket:
             message = json.loads(message_string)
-            if message['type'] == SUCCESS_TYPE or message['type'] == FAILURE_TYPE:
-                response_message_id = message['data']
-                self.messages[response_message_id]['status'] = message['type'] == SUCCESS_TYPE
-                self.messages[response_message_id]['response_event'].set()
+            if 'type' in message and message['type'] == RESPONSE_TYPE:
+                request_id = message['id']
+                self.responses[request_id] = message
+                self.requests[request_id]['response_event'].set()
                 continue
             yield message
 
-    async def report_success(self, id: str):
-        await self.websocket.send(json.dumps({'id': str(uuid.uuid4()), 'type': SUCCESS_TYPE, 'data': id}))
+    async def report_success(self, request_id: str):
+        await self.response(request_id, success=True)
 
-    async def report_failure(self, id: str):
-        await self.websocket.send(json.dumps({'id': str(uuid.uuid4()), 'type': FAILURE_TYPE, 'data': id}))
+    async def report_failure(self, request_id: str):
+        await self.response(request_id, success=False)

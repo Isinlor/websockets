@@ -11,7 +11,7 @@ class Clients():
     clients_by_id = {}
     waiting_for_registration_by_id:Dict[str, List[asyncio.Event]] = {}
 
-    async def get_info_by_id(self, id: str) -> Dict[str, str]:
+    async def get_info_by_id(self, id: str) -> dict:
         """
         Returns a client info provided by the client during registration.
         """
@@ -34,11 +34,11 @@ class Clients():
 
     async def register(self, connection: Connection) -> str:
         message = await connection.receive()
-        info = message['payload']
+        info = message['data']
         self.clients_by_id[info['id']] = {'connection': connection, 'info': info}
         self.__inform_awaiting_registration(info['id'])
         await connection.report_success(message['id'])
-        print(f"Client {info['id']} {info['first_name']} {info['last_name']} registered.")
+        print(f"Client {info['first_name']} {info['last_name']} registered.")
         return info['id']
 
     def deregister(self, id: str) -> None:
