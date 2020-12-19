@@ -61,16 +61,45 @@ async def register(connection: Connection, id: str, first_name: str, last_name: 
         exit(1)
 
 
+async def encrypt(message, recipient_public_key):
+    public_key_formatted = RSA.importKey(
+        '-----BEGIN RSA PUBLIC KEY-----\n' + recipient_public_key + "\n-----END RSA PUBLIC KEY-----")
+    # Encrypt the message using the recipient's public key
+    cipher = PKCS1_OAEP.new(public_key_formatted)
+    ciphertext = cipher.encrypt(message.encode())
+    base64_bytes = base64.b64encode(ciphertext)
+    base64_ciphertext = base64_bytes.decode('ascii')
+    return base64_ciphertext
+
+
+async def decrypt(base64_ciphertext):
+    # Decode the encrypted message from base64
+    base64_bytes = base64_ciphertext.encode('ascii')
+    ciphertext = base64.b64decode(base64_bytes)
+    # Import own private key
+    private_key_formatted = RSA.importKey(
+        '-----BEGIN RSA PRIVATE KEY-----\n' + private_key + "\n-----END RSA PRIVATE KEY-----")
+    # Decrypt the message using own private key
+    cipher = PKCS1_OAEP.new(private_key_formatted)
+    decrypted_message = cipher.decrypt(ciphertext).decode()
+    return decrypted_message
+
+
 async def send_message(connection: Connection, recipient_id: str, message: str):
-    public_key = await connection.action('get_public_key', recipient_id)
-    print(f"Public key: {public_key}")
-    await connection.action('send_message', {'recipient_id': recipient_id, 'message': message})
+    print("Message before encryption: " + message)
+    recipient_public_key = await connection.action('get_public_key', recipient_id)
+    #print(f"Public key: {recipient_public_key}")
+    encrypted_message = await encrypt(message, recipient_public_key)
+    print("Encrypted message: " + str(encrypted_message))
+    await connection.action('send_message', {'recipient_id': recipient_id, 'message': encrypted_message})
 
 
 async def receive_messages(connection: Connection):
     async for message in connection.receive_many():
         try:
-            print(message['payload'])
+            decrypted_message = await decrypt(message['payload'])
+            print("Decrypted message: " + decrypted_message)
+            # print(message['payload'])
             await connection.report_success(message['id'])
         except:
             print("Failed to receive message...")
