@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import asyncio
+import sys
+
 import websockets
 import json
 import re
@@ -11,8 +13,13 @@ from Connection import Connection
 async def client():
     uri = "ws://localhost:8765"
     async with websockets.connect(uri) as websocket:
+
         connection = Connection(websocket)
-        config_file_path = input("Enter the path to your configuration file: ")
+
+        if len(sys.argv) > 1:
+            config_file_path = sys.argv[1]
+        else:
+            config_file_path = input("Enter the path to your configuration file: ")
         with open(config_file_path) as json_file:
             client_data = json.load(json_file)
 
@@ -30,7 +37,7 @@ async def client():
         actions = client_data['actions']
 
         # Create the list of information of actions, in the form of [[recipient0, message0], [recipient1, message1], ..]
-        actions_info = [re.findall(r'\[.*?\]', action) for action in actions]
+        actions_info = [re.findall(r'\[(.*?)\]', action) for action in actions]
 
         await asyncio.gather(
             register(connection, id, first_name, last_name, public_key),  # Register at the server
