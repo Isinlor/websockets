@@ -76,11 +76,6 @@ class Connection():
 
         return response['payload']
 
-    async def response(self, request_id: str, success: bool, payload: Any = None) -> None:
-        await self.websocket.send(json.dumps(
-            {'id': request_id, 'type': RESPONSE_TYPE, 'success': success, 'payload': payload}
-        ))
-
     async def receive(self) -> dict:
         async for message in self.receive_many():
             return message
@@ -95,8 +90,13 @@ class Connection():
                 continue
             yield message
 
-    async def report_success(self, request_id: str):
-        await self.response(request_id, success=True)
+    async def report_success(self, request_id: str, payload: Any = None):
+        await self.__response(request_id, payload=payload, success=True)
 
-    async def report_failure(self, request_id: str):
-        await self.response(request_id, success=False)
+    async def report_failure(self, request_id: str, payload: Any = None):
+        await self.__response(request_id, payload=payload, success=False)
+
+    async def __response(self, request_id: str, success: bool, payload: Any = None) -> None:
+        await self.websocket.send(json.dumps(
+            {'id': request_id, 'type': RESPONSE_TYPE, 'success': success, 'payload': payload}
+        ))

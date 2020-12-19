@@ -62,8 +62,8 @@ async def register(connection: Connection, id: str, first_name: str, last_name: 
 
 
 async def send_message(connection: Connection, recipient_id: str, message: str):
-    # public_key = await connection.action('get_public_key', recipient_id)
-    # print(public_key)
+    public_key = await connection.action('get_public_key', recipient_id)
+    print(f"Public key: {public_key}")
     await connection.action('send_message', {'recipient_id': recipient_id, 'message': message})
 
 

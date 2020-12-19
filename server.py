@@ -51,7 +51,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol, path):
                 if action not in actions:
                     raise FailedAction
                 response = await actions.get(action)(request['payload']['data'])
-                await connection.response(request['id'], response)
+                await connection.report_success(request['id'], response)
             except:
                 await connection.report_failure(request['id'])
                 raise
