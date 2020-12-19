@@ -54,7 +54,7 @@ async def client():
 
 async def register(connection: Connection, id: str, first_name: str, last_name: str, public_key: str):
     client_info = {'id': id, 'first_name': first_name, 'last_name': last_name, 'public_key': public_key}
-    if await connection.send(client_info, max_tries=retries):
+    if await connection.send(client_info, max_tries=retries, backoff=timeout):
         print("Registered.")
     else:
         print("Failed to register.")
@@ -91,7 +91,10 @@ async def send_message(connection: Connection, recipient_id: str, message: str):
     #print(f"Public key: {recipient_public_key}")
     encrypted_message = await encrypt(message, recipient_public_key)
     print("Encrypted message: " + str(encrypted_message))
-    await connection.action('send_message', {'recipient_id': recipient_id, 'message': encrypted_message}, max_tries=retries)
+    await connection.action('send_message',
+                            {'recipient_id': recipient_id, 'message': encrypted_message},
+                            max_tries=retries,
+                            backoff=timeout)
 
 
 async def receive_messages(connection: Connection):
