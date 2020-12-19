@@ -102,11 +102,12 @@ async def receive_messages(connection: Connection):
         try:
             decrypted_message = decrypt(message['payload'])
             print("Decrypted message: " + decrypted_message)
-            # print(message['payload'])
             await connection.report_success(message['id'])
+            print("Reception of message confirmed.")
         except:
             print("Failed to receive message...")
             await connection.report_failure(message['id'])
+            print("Failure to receive message reported.")
 
 
 try:
