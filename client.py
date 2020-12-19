@@ -61,7 +61,7 @@ async def register(connection: Connection, id: str, first_name: str, last_name: 
         exit(1)
 
 
-async def encrypt(message, recipient_public_key):
+def encrypt(message, recipient_public_key):
     public_key_formatted = RSA.importKey(
         '-----BEGIN RSA PUBLIC KEY-----\n' + recipient_public_key + "\n-----END RSA PUBLIC KEY-----")
     # Encrypt the message using the recipient's public key
@@ -72,7 +72,7 @@ async def encrypt(message, recipient_public_key):
     return base64_ciphertext
 
 
-async def decrypt(base64_ciphertext):
+def decrypt(base64_ciphertext):
     # Decode the encrypted message from base64
     base64_bytes = base64_ciphertext.encode('ascii')
     ciphertext = base64.b64decode(base64_bytes)
@@ -88,19 +88,19 @@ async def decrypt(base64_ciphertext):
 async def send_message(connection: Connection, recipient_id: str, message: str):
     print("Message before encryption: " + message)
     recipient_public_key = await connection.action('get_public_key', recipient_id)
-    #print(f"Public key: {recipient_public_key}")
-    encrypted_message = await encrypt(message, recipient_public_key)
+    encrypted_message = encrypt(message, recipient_public_key)
     print("Encrypted message: " + str(encrypted_message))
     await connection.action('send_message',
                             {'recipient_id': recipient_id, 'message': encrypted_message},
                             max_tries=retries,
                             backoff=timeout)
+    print(f"Message delivered to {recipient_id}")
 
 
 async def receive_messages(connection: Connection):
     async for message in connection.receive_many():
         try:
-            decrypted_message = await decrypt(message['payload'])
+            decrypted_message = decrypt(message['payload'])
             print("Decrypted message: " + decrypted_message)
             # print(message['payload'])
             await connection.report_success(message['id'])
