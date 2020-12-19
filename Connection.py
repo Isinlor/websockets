@@ -1,9 +1,12 @@
 import asyncio
 import json
 import uuid
+from logging import Logger
 from typing import Any
 
 from websockets import WebSocketCommonProtocol
+
+logger = Logger("Connection")
 
 REQUEST_TYPE = 'request'
 RESPONSE_TYPE = 'response'
@@ -46,13 +49,14 @@ class Connection():
             return False
 
     async def request_with_retry(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
-        for _ in range(0, max_tries):
+        for _ in range(max_tries):
             try:
                 response = await self.request(payload)
                 return response
             except:
+                logger.exception(f"Request failed on {_} attempt.")
                 await asyncio.sleep(backoff)
-        raise FailedRequest(f"Request failed after {max_tries} attempts!");
+        raise FailedRequest(f"Request failed after {max_tries} attempts!")
 
     async def request(self, payload: Any) -> Any:
 
