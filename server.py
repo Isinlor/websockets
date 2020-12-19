@@ -22,8 +22,11 @@ async def send_action(sender_connection: Connection, data: dict):
     If the recipient is not available it waits for the recipient to become available.
     If message the recipient does not confirm the reception the action fails.
     """
+    print(f"Sending message to: {data['recipient_id']}")
     recipient_connection = await clients.get_connection_by_id(data['recipient_id'])
+    print(f"Recipient connection found: {data['recipient_id']}")
     received_by_recipient = await recipient_connection.send('message', data['message'])
+    print(f"Message received by: {data['recipient_id']}")
     if not received_by_recipient:
         raise FailedAction()
 
