@@ -18,21 +18,22 @@ class FailedAction(Exception):
     pass
 
 
-async def send_message_action(data: dict):
+async def send_message_action(data: dict, sender_id: str, *args, **kwargs):
     """
     This action sends a message to a recipient form the sender.
     If the recipient is not available it waits for the recipient to become available.
     If message the recipient does not confirm the reception the action fails.
     """
-    logger.info(f"Sending message to: {data['recipient_id']}")
+    logger.debug(f"Sending message to: {data['recipient_id']}")
     recipient_connection = await clients.get_connection_by_id(data['recipient_id'])
-    logger.info(f"Recipient connection found: {data['recipient_id']}")
-    received_by_recipient = await recipient_connection.send(data['message'])
-    logger.info(f"Message received by: {data['recipient_id']}")
-    if not received_by_recipient:
-        raise FailedAction()
+    logger.debug(f"Recipient connection found: {data['recipient_id']}")
+    received_by_recipient = await recipient_connection.send(payload={'sender_id': sender_id, 'message': data['message']})
+    if received_by_recipient:
+        logger.debug(f"Message received by: {data['recipient_id']}")
+    else:
+        raise FailedAction(f"Message send by {sender_id} was not received by {data['recipient_id']}")
 
-async def get_public_key_action(client_id: str):
+async def get_public_key_action(client_id: str, *args, **kwargs):
     return (await clients.get_info_by_id(client_id))['public_key']
 
 actions = {
@@ -53,18 +54,18 @@ async def handler(websocket: websockets.WebSocketServerProtocol, path):
             # But receiving information does not happen if this loop does not progress
             # Therefore if a request handling is blocking you may encounter a dead-lock here
             # asyncio.create_task is non-blocking so it avoids the issue altogether
-            asyncio.create_task(handle_request(connection, request))
+            asyncio.create_task(handle_request(connection, request, client_id))
     except websockets.ConnectionClosedError:
         print(f"Connection with client {client_id} closed.")
     finally:
         clients.deregister(client_id)
 
-async def handle_request(connection: Connection, request):
+async def handle_request(connection: Connection, request, client_id: str):
     try:
         action = request['payload']['action']
         if action not in actions:
             raise FailedAction
-        response = await actions.get(action)(request['payload']['data'])
+        response = await actions.get(action)(request['payload']['data'], client_id)
         await connection.report_success(request['id'], response)
     except:
         await connection.report_failure(request['id'])

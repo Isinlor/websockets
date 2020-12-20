@@ -14,8 +14,8 @@
 	},
 	"server":
 	{
-		"ip": "127.0.0.1",
-		"port": "13370"
+		"ip": "localhost",
+		"port": "8765"
 	},
 	"actions": [
 		"SEND [eifert] [HELLO THOMAS]"
