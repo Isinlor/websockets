@@ -1,4 +1,5 @@
 import asyncio
+from logging import Logger
 from typing import Dict, List
 
 from Connection import Connection
@@ -10,6 +11,9 @@ class Clients():
 
     clients_by_id = {}
     waiting_for_registration_by_id:Dict[str, List[asyncio.Event]] = {}
+
+    def __init__(self, logger: Logger):
+        self.logger = logger
 
     async def get_info_by_id(self, id: str) -> Dict[str, str]:
         """
@@ -38,12 +42,12 @@ class Clients():
         self.clients_by_id[info['id']] = {'connection': connection, 'info': info}
         self.__inform_awaiting_registration(info['id'])
         await connection.report_success(message['id'])
-        print(f"Client {info['id']} {info['first_name']} {info['last_name']} registered.")
+        self.logger.info(f"Client {info['id']} {info['first_name']} {info['last_name']} registered.")
         return info['id']
 
     def deregister(self, id: str) -> None:
         del self.clients_by_id[id]
-        print(f"Client {id} deregistered.")
+        self.logger.info(f"Client {id} deregistered.")
 
     def __inform_awaiting_registration(self, id: str) -> None:
         for registration_event in self.waiting_for_registration_by_id.get(id, []):

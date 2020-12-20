@@ -8,11 +8,11 @@ import websockets
 from Connection import Connection
 from Server.Clients import Clients
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 
-logger = logging.Logger("Server")
+logger = logging.getLogger("Server")
 
-clients = Clients()
+clients = Clients(logger)
 
 class FailedAction(Exception):
     pass
@@ -74,8 +74,8 @@ async def handle_request(connection: Connection, request, client_id: str):
 start_handler = websockets.serve(handler, "localhost", 8765)
 
 try:
-    print("Server is listening...")
+    logger.info("Server is listening...")
     asyncio.get_event_loop().run_until_complete(start_handler)
     asyncio.get_event_loop().run_forever()
 except KeyboardInterrupt:
-    print("Server closed.")
+    logger.error("Server closed.")

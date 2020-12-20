@@ -1,12 +1,12 @@
 import asyncio
 import json
 import uuid
-from logging import Logger, DEBUG
+import logging
 from typing import Any
 
 from websockets import WebSocketCommonProtocol
 
-logger = Logger("Connection")
+logger = logging.getLogger("Connection")
 
 REQUEST_TYPE = 'request'
 RESPONSE_TYPE = 'response'
