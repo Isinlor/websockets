@@ -48,7 +48,7 @@ async def client():
 
         await asyncio.gather(
             register(connection, id, first_name, last_name, public_key),  # Register at the server
-            receive_messages(connection),  # Receive messages
+            asyncio.wait_for(receive_messages(connection), duration),  # Receive messages
             # TODO: recipient can be specified also by first and last name
             # Do the actions specified in the configuration file
             *(send_message(connection, recipient_id=action[0], message=action[1]) for action in actions_info)
@@ -114,6 +114,7 @@ async def receive_messages(connection: Connection):
 
 
 try:
-    asyncio.get_event_loop().run_until_complete(client())
-except KeyboardInterrupt:
-    print("Client closed.")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.wait_for(client(), duration))
+except:
+    logger.exception("Client closed.")
