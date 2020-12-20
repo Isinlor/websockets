@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 
-from Client.Client import Client
+from Client.Person import Person
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,10 +14,10 @@ else:
 
 with open(config_file_path) as json_file:
 
-    logger = logging.getLogger("Client")
+    logger = logging.getLogger("Person")
 
     client_data = json.load(json_file)
-    client = Client(client_data, logger)
+    client = Person(client_data, logger)
 
     try:
         asyncio.get_event_loop().run_until_complete(client.start())

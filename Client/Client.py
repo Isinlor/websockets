@@ -1,4 +1,6 @@
 import asyncio
+from typing import Any
+
 import websockets
 import re
 
@@ -8,6 +10,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 from Connection import Connection
+
 
 class Client():
 
@@ -89,17 +92,17 @@ class Client():
         encrypted_message = self.encrypt(message, recipient_public_key)
         self.logger.debug("Encrypted message: " + str(encrypted_message))
         await self.connection.action('send_message',
-                                {'recipient_id': recipient_id, 'message': encrypted_message},
-                                max_tries=self.retries,
-                                backoff=self.timeout)
+                                     {'recipient_id': recipient_id, 'message': encrypted_message},
+                                     max_tries=self.retries,
+                                     backoff=self.timeout)
         self.logger.info(f"Message delivered to {recipient_id}")
 
     async def receive_messages(self):
         async for message in self.connection.receive_many():
             try:
                 decrypted_message = self.decrypt(message['payload']['message'])
-                self.logger.info("Received message: " + decrypted_message)
-                await self.receive_message(message)
+                self.logger.debug("Received message: " + decrypted_message)
+                await self.receive_message(message['payload']['sender_id'], decrypted_message)
                 await self.connection.report_success(message['id'])
                 self.logger.debug("Reception of message confirmed.")
             except:
@@ -107,5 +110,5 @@ class Client():
                 await self.connection.report_failure(message['id'])
                 self.logger.debug("Failure to receive message reported.")
 
-    async def receive_message(self, message):
+    async def receive_message(self, sender_id: str, message: Any):
         pass
