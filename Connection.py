@@ -1,7 +1,7 @@
 import asyncio
 import json
 import uuid
-from logging import Logger
+from logging import Logger, DEBUG
 from typing import Any
 
 from websockets import WebSocketCommonProtocol
@@ -64,9 +64,12 @@ class Connection():
 
     async def receive_many(self):
         async for message_string in self.websocket:
+            logger.debug("Received: " + message_string)
             message = json.loads(message_string)
             if 'type' in message and message['type'] == RESPONSE_TYPE:
                 request_id = message['id']
+                if request_id not in self.requests:
+                    raise Exception(f"Received response to an unknown request: {request_id}")
                 self.responses[request_id] = message
                 self.requests[request_id]['response_event'].set()
                 continue
@@ -86,14 +89,15 @@ class Connection():
             response_event = asyncio.Event()
             envelope = {'id': id, 'type': REQUEST_TYPE, 'payload': payload}
             self.requests[id] = {**envelope, 'response_event': response_event}
-            await self.websocket.send(json.dumps(envelope))
+            await self.__raw_send(envelope)
             await response_event.wait()
             response = self.responses[id]
         except Exception as exception:
             raise FailedRequest(exception)
         finally:
             del self.requests[id]
-            del self.responses[id]
+            if id in self.responses:
+                del self.responses[id]
 
         if not response['success']:
             raise FailedRequest(response_payload=response['payload'])
@@ -101,6 +105,8 @@ class Connection():
         return response['payload']
 
     async def __response(self, request_id: str, success: bool, payload: Any = None) -> None:
-        await self.websocket.send(json.dumps(
-            {'id': request_id, 'type': RESPONSE_TYPE, 'success': success, 'payload': payload}
-        ))
+        await self.__raw_send({'id': request_id, 'type': RESPONSE_TYPE, 'success': success, 'payload': payload})
+
+    async def __raw_send(self, envelope: dict) -> None:
+        await self.websocket.send(json.dumps(envelope))
+        logger.debug("Sent: " + json.dumps(envelope))

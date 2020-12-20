@@ -2,6 +2,7 @@
 
 import asyncio
 import sys
+from logging import Logger
 
 import websockets
 import json
@@ -13,6 +14,8 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 from Connection import Connection
+
+logger = Logger("Client")
 
 if len(sys.argv) > 1:
     config_file_path = sys.argv[1]
@@ -86,10 +89,10 @@ def decrypt(base64_ciphertext):
 
 
 async def send_message(connection: Connection, recipient_id: str, message: str):
-    print("Message before encryption: " + message)
+    logger.info("Message before encryption: " + message)
     recipient_public_key = await connection.action('get_public_key', recipient_id)
     encrypted_message = encrypt(message, recipient_public_key)
-    print("Encrypted message: " + str(encrypted_message))
+    logger.info("Encrypted message: " + str(encrypted_message))
     await connection.action('send_message',
                             {'recipient_id': recipient_id, 'message': encrypted_message},
                             max_tries=retries,
@@ -101,13 +104,13 @@ async def receive_messages(connection: Connection):
     async for message in connection.receive_many():
         try:
             decrypted_message = decrypt(message['payload'])
-            print("Decrypted message: " + decrypted_message)
+            print("Received message: " + decrypted_message)
             await connection.report_success(message['id'])
-            print("Reception of message confirmed.")
+            logger.info("Reception of message confirmed.")
         except:
-            print("Failed to receive message...")
+            logger.error("Failed to receive message...")
             await connection.report_failure(message['id'])
-            print("Failure to receive message reported.")
+            logger.info("Failure to receive message reported.")
 
 
 try:
