@@ -1,3 +1,4 @@
+import re
 import secrets
 from typing import Any, Dict
 
@@ -28,8 +29,28 @@ class Bank(Client):
             self.logger.warning(f"Invalid secret received from {person_id}!")
         return secret == received_secret
 
-    async def receive_message(self, sender_id: str, message: Any):
+    async def receive_message(self, sender_id: str, message: str):
         self.logger.info(f"From {sender_id} received message: {message}")
         if not await self.authenticate(sender_id):
             return "Authentication failed!"
 
+        if message.startswith("ADD "):
+            match = re.match(r'ADD \[(?P<from_account>.*?)] \[(?P<to_account>.*)] \[(?P<amount>\d+)]', message)
+            return await self.move_action(sender_id, **match.groupdict())
+
+        elif message.startswith("SUB "):
+            match = re.match(r'SUB \[(?P<from_account>.*?)] \[(?P<amount>\d+)]', message)
+            return await self.withdraw_action(sender_id, **match.groupdict())
+
+        else:
+            self.logger.warning(f"Unknown action requested!")
+
+    async def move_action(self, requesting_person:str, from_account:str, to_account:str, amount: int):
+        self.logger.info(
+            f"Person {requesting_person} requested to move {amount} from account {from_account} to account {to_account}."
+        )
+
+    async def withdraw_action(self, requesting_person:str, from_account:str, amount: int):
+        self.logger.info(
+            f"Person {requesting_person} requested to withdraw {amount} from account {from_account}."
+        )
