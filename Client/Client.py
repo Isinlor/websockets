@@ -31,7 +31,7 @@ class Client():
         self.actions = client_data['actions']
 
         # Create the list of information of actions, in the form of [[recipient0, message0], [recipient1, message1], ..]
-        self.actions_info = [re.findall(r'\[(.*?)\]', action) for action in self.actions]
+        self.actions_info = [re.findall(r'SEND \[(?P<reciver>.*?)] (?P<message>.*)', action)[0] for action in self.actions]
 
         # Import own private key
         private_key_formatted = RSA.importKey(
@@ -69,7 +69,15 @@ class Client():
         else:
             raise Exception("Failed to register.")
 
+    async def complete_authentication(self, message_id: str, sender_id: str, decrypted_message: str):
+        self.logger.info(f"Requested to authenticate by {sender_id}")
+        secret = decrypted_message.split(" ")[1]
+        await self.connection.report_success(message_id, await self.encrypt_message(sender_id, secret))
+        self.logger.info(f"Responded to authentication request by {sender_id}")
+
     def encrypt(self, message, recipient_public_key):
+        if message is None:
+            return None
         public_key_formatted = RSA.importKey(
             '-----BEGIN RSA PUBLIC KEY-----\n' + recipient_public_key + "\n-----END RSA PUBLIC KEY-----")
         # Encrypt the message using the recipient's public key
@@ -80,6 +88,8 @@ class Client():
         return base64_ciphertext
 
     def decrypt(self, base64_ciphertext):
+        if base64_ciphertext is None:
+            return None
         # Decode the encrypted message from base64
         base64_bytes = base64_ciphertext.encode('ascii')
         ciphertext = base64.b64decode(base64_bytes)
@@ -88,27 +98,47 @@ class Client():
 
     async def send_message(self, recipient_id: str, message: str):
         self.logger.debug("Message before encryption: " + message)
-        recipient_public_key = await self.connection.action('get_public_key', recipient_id)
-        encrypted_message = self.encrypt(message, recipient_public_key)
+        encrypted_message = await self.encrypt_message(recipient_id, message)
         self.logger.debug("Encrypted message: " + str(encrypted_message))
-        await self.connection.action('send_message',
+        response = await self.connection.action('send_message',
                                      {'recipient_id': recipient_id, 'message': encrypted_message},
                                      max_tries=self.retries,
                                      backoff=self.timeout)
-        self.logger.info(f"Message delivered to {recipient_id}")
+        self.logger.info(f"Message delivered to {recipient_id} with response {response}")
+        return self.decrypt(response)
+
+    async def encrypt_message(self, recipient_id, message):
+        if message is None:
+            return None
+        recipient_public_key = await self.connection.action('get_public_key', recipient_id)
+        encrypted_message = self.encrypt(message, recipient_public_key)
+        return encrypted_message
 
     async def receive_messages(self):
         async for message in self.connection.receive_many():
             try:
-                decrypted_message = self.decrypt(message['payload']['message'])
-                self.logger.debug("Received message: " + decrypted_message)
-                await self.receive_message(message['payload']['sender_id'], decrypted_message)
-                await self.connection.report_success(message['id'])
-                self.logger.debug("Reception of message confirmed.")
+                asyncio.create_task(self.handle_message(message))
+                self.logger.debug("Message scheduled for handling.")
             except:
                 self.logger.exception("Failed to receive message...")
                 await self.connection.report_failure(message['id'])
                 self.logger.debug("Failure to receive message reported.")
 
-    async def receive_message(self, sender_id: str, message: Any):
+    async def handle_message(self, message):
+
+        decrypted_message = self.decrypt(message['payload']['message'])
+        self.logger.debug("Received message: " + decrypted_message)
+
+        # handle possible need to authenticate
+        if decrypted_message.startswith("AUTH "):
+            await self.complete_authentication(message['id'], message['payload']['sender_id'], decrypted_message)
+            return
+
+        response = await self.receive_message(message['payload']['sender_id'], decrypted_message)
+        encrypted_response = await self.encrypt_message(message['payload']['sender_id'], response)
+        await self.connection.report_success(message['id'], encrypted_response)
+
+        self.logger.debug("Message successfully handled.")
+
+    async def receive_message(self, sender_id: str, message: Any) -> Any:
         pass

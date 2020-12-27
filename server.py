@@ -27,10 +27,12 @@ async def send_message_action(data: dict, sender_id: str, *args, **kwargs):
     logger.debug(f"Sending message to: {data['recipient_id']}")
     recipient_connection = await clients.get_connection_by_id(data['recipient_id'])
     logger.debug(f"Recipient connection found: {data['recipient_id']}")
-    received_by_recipient = await recipient_connection.send(payload={'sender_id': sender_id, 'message': data['message']})
-    if received_by_recipient:
+    try:
+        response = await recipient_connection.request(payload={'sender_id': sender_id, 'message': data['message']})
         logger.debug(f"Message received by: {data['recipient_id']}")
-    else:
+        return response
+    except:
+        logger.exception("Sending message failed.")
         raise FailedAction(f"Message send by {sender_id} was not received by {data['recipient_id']}")
 
 async def get_public_key_action(client_id: str, *args, **kwargs):
