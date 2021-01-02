@@ -1,14 +1,9 @@
 {
-  "accounts": {
-    "account1": 1000,
-    "account2": 1000,
-    "account3": 1000
-  },
   "organizations": {
     "organization1": {
       "account": "account1",
       "employees": {
-        "bastian": {"permissions": ["ADD"]},
+        "bastian": {"permissions": ["ADD", "SUB"]},
         "eifert": {"permissions": ["SUB"]}
       }
     }

@@ -11,6 +11,8 @@ from Crypto.Cipher import PKCS1_OAEP
 
 from Connection import Connection
 
+class ClientResponseException(Exception):
+    pass
 
 class Client():
 
@@ -116,29 +118,32 @@ class Client():
 
     async def receive_messages(self):
         async for message in self.connection.receive_many():
-            try:
+
                 asyncio.create_task(self.handle_message(message))
                 self.logger.debug("Message scheduled for handling.")
-            except:
-                self.logger.exception("Failed to receive message...")
-                await self.connection.report_failure(message['id'])
-                self.logger.debug("Failure to receive message reported.")
 
     async def handle_message(self, message):
+        try:
+            decrypted_message = self.decrypt(message['payload']['message'])
+            self.logger.debug("Received message: " + decrypted_message)
 
-        decrypted_message = self.decrypt(message['payload']['message'])
-        self.logger.debug("Received message: " + decrypted_message)
+            # handle possible need to authenticate
+            if decrypted_message.startswith("AUTH "):
+                await self.complete_authentication(message['id'], message['payload']['sender_id'], decrypted_message)
+                return
 
-        # handle possible need to authenticate
-        if decrypted_message.startswith("AUTH "):
-            await self.complete_authentication(message['id'], message['payload']['sender_id'], decrypted_message)
-            return
+            response = await self.receive_message(message['payload']['sender_id'], decrypted_message)
+            encrypted_response = await self.encrypt_message(message['payload']['sender_id'], response)
+            await self.connection.report_success(message['id'], encrypted_response)
 
-        response = await self.receive_message(message['payload']['sender_id'], decrypted_message)
-        encrypted_response = await self.encrypt_message(message['payload']['sender_id'], response)
-        await self.connection.report_success(message['id'], encrypted_response)
-
-        self.logger.debug("Message successfully handled.")
+            self.logger.debug("Message successfully handled.")
+        except Exception as e:
+            self.logger.exception("Failed to handle message...")
+            response = None
+            if isinstance(e, ClientResponseException) and hasattr(e, 'message'):
+                response = e.message
+            await self.connection.report_failure(message['id'], response)
+            self.logger.debug("Failure to receive message reported.")
 
     async def receive_message(self, sender_id: str, message: Any) -> Any:
         pass
