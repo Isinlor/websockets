@@ -11,7 +11,7 @@
 	"server": {"ip": "localhost", "port": "8765"},
 	"actions": [
 		"SEND [eifert] [HELLO THOMAS]",
-		"SEND [bank] ADD [account1] [account2] [900]",
-		"SEND [bank] SUB [account1] [100]"
+		"SEND [bank] ADD [account1] [account2] [100]",
+		"SEND [bank] SUB [account2] [100]"
 	]
 }
