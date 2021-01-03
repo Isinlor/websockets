@@ -10,6 +10,6 @@
 	"general": {"duration": "60", "retries": "3", "timeout": "10"},
 	"server": {"ip": "localhost", "port": "8765"},
 	"actions": [
-		"SEND [bastian] [HELLO BASTIAN 2]"
+		"SEND [Küppers, Bastian] [HELLO BASTIAN]"
 	]
 }

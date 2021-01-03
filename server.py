@@ -8,7 +8,7 @@ import websockets
 from Connection import Connection
 from Server.Clients import Clients
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger("Server")
 

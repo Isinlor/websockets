@@ -39,15 +39,20 @@ class Clients():
     async def register(self, connection: Connection) -> str:
         message = await connection.receive()
         info = message['payload']
-        self.clients_by_id[info['id']] = {'connection': connection, 'info': info}
-        self.__inform_awaiting_registration(info['id'])
+        await self.__save_by_id(connection, info['id'], info)
+        await self.__save_by_id(connection, info['last_name'] + ", " + info['first_name'], info)
+        await self.__save_by_id(connection, info['first_name'] + ", " + info['last_name'], info)
         await connection.report_success(message['id'])
-        self.logger.info(f"Client {info['id']} {info['first_name']} {info['last_name']} registered.")
+        self.logger.info(f"Client with id {info['id']} and name {info['last_name']}, {info['first_name']} registered.")
         return info['id']
 
     def deregister(self, id: str) -> None:
         del self.clients_by_id[id]
         self.logger.info(f"Client {id} deregistered.")
+
+    async def __save_by_id(self, connection, id, info):
+        self.clients_by_id[id] = {'connection': connection, 'info': info}
+        self.__inform_awaiting_registration(id)
 
     def __inform_awaiting_registration(self, id: str) -> None:
         for registration_event in self.waiting_for_registration_by_id.get(id, []):

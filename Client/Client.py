@@ -21,8 +21,8 @@ class Client():
         # Load client parameters
         self.logger = logger
         self.id = client_data['person']['id']
-        self.last_name = client_data['person']['name'].split(',')[0]
-        self.first_name = client_data['person']['name'].split(',')[1]
+        self.last_name = client_data['person']['name'].split(',')[0].strip()
+        self.first_name = client_data['person']['name'].split(',')[1].strip()
         self.public_key = client_data['person']['keys']['public']
         self.private_key = client_data['person']['keys']['private']
         self.duration = int(client_data['general']['duration'])
