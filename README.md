@@ -57,3 +57,5 @@ We again use `configs/bank_permissions.json` file to specify private bank accoun
 One of the problems with carrying out bank transfers is ensuring consistency. This is especially important during bank transfers. We must not allow our system to create or destroy money. One scenario in which money could be created is when we carry two transfers concurrently and balance of one bank account gets overwritten by one process before the other manages to complete the transaction.
 
 We avoid issues related to database consistency by leveraging relational databases and SQL language. You can inspect our implementation in `Client/Accounts.py`.
+
+Our implementation uses `SQLite` as it does not require managing database daemon, but it could be easily extended to use `MySQL` or `PostgreSQL` in order to allow for greater scalability.
