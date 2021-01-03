@@ -10,6 +10,11 @@ The program was tested on Ubuntu 20.04 with Python 3.7.5. The dependencies are m
 You can carry out installation as well as start the server and clients by running `sh ./start.sh`. The logs are saved to `start.log` file.
 Installation is carried out by `sh ./install.sh`.
 
+In case it doesn't work on a native platform, you could try to run it inside docker container:
+```
+docker build -t websocket-project . && docker run --rm -it -p 8765:8765 websocket-project
+```
+
 # Project structure
 
 In this project we are using websockets protocol in order to create a full-duplex communication channel between clients and server.

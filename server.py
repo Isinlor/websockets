@@ -73,7 +73,7 @@ async def handle_request(connection: Connection, request, client_id: str):
         await connection.report_failure(request['id'])
         raise
 
-start_handler = websockets.serve(handler, "localhost", 8765)
+start_handler = websockets.serve(handler, "", 8765)
 
 try:
     logger.info("Server is listening...")
