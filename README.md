@@ -69,23 +69,23 @@ Our implementation uses `SQLite` as it does not require managing database daemon
 ### Duration
 Client switch off after a certain amount of time is implemented in:
 ```python
-    # Client/Client.py:46
-    async def start(self):
-        await asyncio.wait_for(self.__start(), self.duration)
+# Client/Client.py:46
+async def start(self):
+    await asyncio.wait_for(self.__start(), self.duration)
 ```
 
 ### Retries with timeout
 Retries are implemented in:
 ```python
     # Connection.py:52
-    async def request(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
-        for _ in range(max_tries):
-            try:
-                return await self.__request(payload)
-            except:
-                logger.exception(f"Request failed on {_} attempt.")
-                await asyncio.sleep(backoff)
-        raise FailedRequest(f"Request failed after {max_tries} attempts!")
+async def request(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
+    for _ in range(max_tries):
+        try:
+            return await self.__request(payload)
+        except:
+            logger.exception(f"Request failed on {_} attempt.")
+            await asyncio.sleep(backoff)
+    raise FailedRequest(f"Request failed after {max_tries} attempts!")
 ```
 
 ### Encryption
