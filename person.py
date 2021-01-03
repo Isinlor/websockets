@@ -1,4 +1,5 @@
 import asyncio
+import concurrent
 import json
 import logging
 import sys
@@ -21,5 +22,7 @@ with open(config_file_path) as json_file:
 
     try:
         asyncio.get_event_loop().run_until_complete(client.start())
+    except asyncio.TimeoutError:
+        logger.info("Client closed due to limited duration.")
     except:
-        logger.exception("Client closed.")
+        logger.exception("Client closed due to error.")

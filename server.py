@@ -80,4 +80,4 @@ try:
     asyncio.get_event_loop().run_until_complete(start_handler)
     asyncio.get_event_loop().run_forever()
 except KeyboardInterrupt:
-    logger.error("Server closed.")
+    logger.info("Server closed.")

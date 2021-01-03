@@ -7,7 +7,7 @@
 			"public": "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuD0NCJ9GVK1XrfcJkiDsKoYRt0qf0/ZF5UO8STki6Paez+haUhp3u0ce2IxpML7uHi8x4TakytWtVG2688WBWtX3YduMf9tCydWg79T++yb8md/P2Po9xy5JE9QNpYVEuChGvzQ2soGnXVo+7aIzrUHkSfZHRzDQGj6k3l2i5ifqF8o8FBJqJIfbOAr+HTkKrYbm7cWJ+f/WRcd3VkPUx/JxbZtDHE2VlCLgOO5RcovA75C8lbiHZZ3rpw1RyV0CwWSJUuiUxDvGZcQwTI55tSDEtTnRQeIWBxBPTEpu1JymF9E2A4bMkFnp02y6CnmSJ4oevhx18QYorNT4GNZv/xz02KVkZ3SWQacDnZu2iM9boq+7JGNH4R0paJFp/RZXNhhPXf1LHUmf5eIgk7MDH5cVaE7wWd6S0425v6kaQK9cDM5GpM80hdzVM8fQE7U0YOl1zphvR5+VQ2+pi0AGwzHJaA2PayKQFUEMlR2wTJIelW28gWgFRkp8FCzT+6PZoJEYgs4o6JwzQC9ax1aofLcepOgP4ILkS/jjeT1QtHkETOTt53c8umE/xb4mk/u4n3NZ4WosK2GNxbwHgrOzYKPwyDTeBnFIj27WR4LlaahqA+0U3MUk2ifqHh6NTCAwNXNCwmpSC8uLK3Q0ypwLlzNuppzk3snKH6/1BpEVHq0CAwEAAQ=="
 		}
 	},
-	"general": {"duration": "360", "retries": "5", "timeout": "10"},
+	"general": {"duration": "60", "retries": "3", "timeout": "10"},
 	"server": {"ip": "localhost", "port": "8765"},
 	"actions": [
 		"SEND [bastian] [HELLO BASTIAN 2]"
