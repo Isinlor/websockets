@@ -1,6 +1,6 @@
 # Installation and starting the server and clients
 
-You can carry out installation as well as start the server and clients by running `sh ./start.sh`.
+You can carry out installation as well as start the server and clients by running `sh ./start.sh`. The logs are saved to `start.log` file.
 Installation is carried out by `sh ./install.sh`. The program was tested on Ubuntu 20.04 with Python 3.7.5.
 
 # Project structure
