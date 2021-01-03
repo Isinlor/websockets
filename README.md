@@ -1,3 +1,8 @@
+### Project members of Group 26
+- Tomasz Darmetko
+- Laura Isotalo
+- Tu Anh Dinh
+
 # Installation and starting the server and clients
 
 You can carry out installation as well as start the server and clients by running `sh ./start.sh`. The logs are saved to `start.log` file.
