@@ -54,7 +54,7 @@ We again use `configs/bank_permissions.json` file to specify private bank accoun
 
 Private account and organization bank account are fully separate, so there if no conflict between them.
 
-The permission system allows bank to implement roles.
+The permission system allows bank to implement roles by combining different permissions for clients who are employees of some organization.
 
 ### ACID transactions
 
