@@ -25,8 +25,8 @@ class Connection():
     The messages are stored awaiting for report of success or failure i.e. response event.
 
     The recipient can report status of specific message by calling:
-        - report_success(message_id)
-        - report_failure(message_id)
+        - report_success(request_id, payload)
+        - report_failure(request_id, payload)
 
     The sending party needs to monitor all incoming messages looking for the reports.
     Meanwhile the rest of communication must be allowed to continue uninterrupted.
