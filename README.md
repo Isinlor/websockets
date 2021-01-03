@@ -52,6 +52,10 @@ There are 2 way in which an account can be authorized to carry out operations on
 
 We again use `configs/bank_permissions.json` file to specify private bank account as well as organization bank accounts and their employees with specific permissions.
 
+Private account and organization bank account are fully separate, so there if no conflict between them.
+
+The permission system allows bank to implement roles.
+
 ### ACID transactions
 
 One of the problems with carrying out bank transfers is ensuring consistency. This is especially important during bank transfers. We must not allow our system to create or destroy money. One scenario in which money could be created is when we carry two transfers concurrently and balance of one bank account gets overwritten by one process before the other manages to complete the transaction.
@@ -59,3 +63,36 @@ One of the problems with carrying out bank transfers is ensuring consistency. Th
 We avoid issues related to database consistency by leveraging relational databases and SQL language. You can inspect our implementation in `Client/Accounts.py`.
 
 Our implementation uses `SQLite` as it does not require managing database daemon, but it could be easily extended to use `MySQL` or `PostgreSQL` in order to allow for greater scalability.
+
+# Other implementation details
+
+### Duration
+Client switch off after a certain amount of time is implemented in:
+```python
+    # Client/Client.py:46
+    async def start(self):
+        await asyncio.wait_for(self.__start(), self.duration)
+```
+
+### Retries with timeout
+Retries are implemented in:
+```python
+    # Connection.py:52
+    async def request(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
+        for _ in range(max_tries):
+            try:
+                return await self.__request(payload)
+            except:
+                logger.exception(f"Request failed on {_} attempt.")
+                await asyncio.sleep(backoff)
+        raise FailedRequest(f"Request failed after {max_tries} attempts!")
+```
+
+### Encryption
+```python
+# Client/Client.py:80
+def encrypt(self, message, recipient_public_key):
+    # ...
+def decrypt(self, base64_ciphertext):
+    # ...
+```
