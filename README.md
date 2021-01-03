@@ -77,7 +77,7 @@ async def start(self):
 ### Retries with timeout
 Retries are implemented in:
 ```python
-    # Connection.py:52
+# Connection.py:52
 async def request(self, payload: Any, max_tries: int = 1, backoff: float = 1.) -> Any:
     for _ in range(max_tries):
         try:
