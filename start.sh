@@ -7,7 +7,7 @@ echo "Start server and clients..."
 trap 'kill 0' SIGINT;                     # kill sub processes on script exit
 exec &> start.log                         # log output to a file
 
-python server.py &                        # start server
-python bank.py configs/bank.json &        # start bank client
-python person.py configs/person1.json &   # start person1 client
-python person.py configs/person2.json     # start person2 client
+python3 server.py &                        # start server
+python3 bank.py configs/bank.json &        # start bank client
+python3 person.py configs/person1.json &   # start person1 client
+python3 person.py configs/person2.json     # start person2 client
