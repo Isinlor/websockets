@@ -1,29 +1,29 @@
 INFO:Server:Server is listening...
-INFO:Server:Client bastian  Bastian Küppers registered.
+INFO:Server:Client with id eifert and name EIFERT, THOMAS registered.
 INFO:Person:Registered.
-INFO:Server:Client eifert  THOMAS EIFERT registered.
+INFO:Server:Client with id bastian and name Küppers, Bastian registered.
 INFO:Person:Registered.
 INFO:Person:From bastian received message: [HELLO THOMAS]
-INFO:Server:Client bank  John Rockefeller registered.
-INFO:Bank:Registered.
-INFO:Person:From eifert received message: [HELLO BASTIAN 2]
-INFO:Person:Message delivered to bastian with response None
+INFO:Person:From eifert received message: [HELLO BASTIAN]
 INFO:Person:Message delivered to eifert with response None
+INFO:Person:Message delivered to Küppers, Bastian with response None
+INFO:Server:Client with id bank and name Rockefeller, John registered.
+INFO:Bank:Registered.
 INFO:Bank:From bastian received message: ADD [account1] [account2] [100]
 INFO:Bank:Requesting authentication from bastian
 INFO:Bank:From bastian received message: SUB [account2] [100]
 INFO:Bank:Requesting authentication from bastian
 INFO:Person:Requested to authenticate by bank
+INFO:Person:Requested to authenticate by bank
 INFO:Person:Responded to authentication request by bank
-INFO:Bank:Message delivered to bastian with response Vv67lTELocpTsXWFaO4EPQtAfWyj+7DI9+GqgeHlFxHtFLOp+sFivDU3Yx3DHVquz6WIGLiHzy27JGaKYD2MG6J/KHEKxtp4mtnM8uCdNbxazYQtXpDiqpHEIohibRt+GLj1vvkT/EjkxYVkQR7O0jUC71Qf6hIC02g/VXpsUYBRq9EOqCPFItiWTcnhbMY/z4W9NipRaha0o7lWmwF1o+QfSkPokqvJ3aqPrUKwG9/bzRXSsX/6ezE4/vJ/6nv0ot9kk2tsojbhYzgavKtHaVTfjz4eJSnJHoCRUMV6LDI5Ndb2ww7C4zMsrZsJE1Ii1YkC77H10PcFrmNQbW3huF0EjiZi2Zc9awYjV7qyrljRgdS6PByjLoz3j/cvo8zjoTFjOROnu4VVKQEWwEgIRMWr2WOVI6nsT4PE6Gw8OU48JFV8LOUGaJgFYS9ZELpSn4gbldOIxEf3NN5A5Q2OShherj2f3hGJU1H8cMul0Ol8Jc44cHDjufhtvfqViqJePw4MbuidHIgQSt/fOfc7ujdz4hZGNV3QnIxG9vs+h7JKVjacGfYa9EDs/JLxx1Xi4YrOqtzEkMhdPOEksnxarBeccA6pqt6D5wx2kXLmMhm7JMtRZKBQSLbbE13t5L6o/jaakTr87bvG2itIfn1q+4o/8mPKYyC1CXmDhvl6GBM=
+INFO:Bank:Message delivered to bastian with response e5WncX8QHnKB8vQwVwyYMNGWkG//JJLUG8CrJoN+PiJ5RM4PcmSf177hXyOUxlCzBuLXU8pKcG4djRCYIWYGj3hwCRjeDf/UZ56Wdhjs9GctLSh666w/QSsSTOEBA5YjQ/5rWlrvnUwvmqzJxgR+EwDCsYcZBMlCO06mO01eNqDh3b3srpR0N1m+IxecJCDxSs3dMfjvf5sA4zyz6Fl+KxNxYczFTOu6Wo5DsjoDas3P5Wn8PK3KC/n+1hY/I9ORWLbliBjYqlVflP6IZilszMXSBZNH/zDLtY6rCJ7Ib+Gag/v8jDk6btEuRuKNwebbpUSw1LQ/MYjyNjEbf2KBpQYD81TVCu1J3v3iXhKpZ0QC3yaqkln87euZc+Uw+AxCAIE2oCreEGOBDojBkAsJ/S5JZLFia2DhF+FxR6wiXgZBRPI97+02oMBjWgsY+WFBjC1UnFb+FXJDbT5b3XxQ4RT8ZxkULrKYUIQCYrGZmnj5tVpOcDOOB5XbXpQCxgJrq6mdMPzaP4zMAb1TO2eTq39Sejeg4MAy03re3XRTIbEA6nj+BqvXSvQhunrn3SgMX1pAsUxEBazCTEyp/KFOHoBtWB0Kpz224lj0bN6i/SGJzQbx/TfVbE7mcg6wqrGJP6U2LjeT0yQt2fmMeuCcVo2H3rIBK9wDDGNItRTJUZI=
+INFO:Person:Responded to authentication request by bank
 INFO:Bank:Authenticated: bastian
 INFO:Bank:Person bastian requested to move 100 from account account1 to account account2.
 INFO:Bank:Requesting authorization from bastian to account1
 INFO:Bank:Person bastian is authorized by org organization1 to ADD on account1 account.
-INFO:Person:Requested to authenticate by bank
-INFO:Person:Responded to authentication request by bank
-INFO:Bank:New balance: 700 on account account1.
-INFO:Bank:Message delivered to bastian with response GBcow6eG10XpKTIeHi+y3TvtzZ2PeH3O31LJsGtRpzfaeI3h+1MKhFk9aK5h+K8SO/AaHk3+7FBxsxVSPIqPyM7tatvr07iZztaAzMdTdWQLdW345rzeBKI0eZxEMlUQE79Ovmgc23wLIlBRD5kdQnrwqX9WllAhzTYvDJZC8dVe63bqFBOYTQJxkZLlWG1WLOxlVxmOk9GI/VmJ7no+PzQqXmzeGRznT+uyAfShjwwsm1waFx5XDJodiNvOna8xk1Z6aKUuO8yofb9E/4IOOnMyj838wTEZRqBCEol4g2B+9l9d/8J2p92eex4qPRm/EwIW1YB57sbKaqcaVWhJSxFsnekq29CoN5d/h1Rnupf/e5XpMaptd29B6BTSk0Kmitrio0QpO9MTa6Lt1/FClEqA3F6bUbqByPG/gt+iBaaOyb8Orf4jXiKFafBrJW9gjTx0CV4xsnIO1g6oRZnRvI1ARU2j3B7/fFIzU5T0q97Y/VHBFkQJ4TBDU/xZVuATCCMwWnM9g6kJy/C5xgOaKiCusH2BFjv4PufRvclh71s6u35/qSxJkIHawPy55tDvg2uKdl2dMSKH/RQTpY7zkEPwBOfBzGc/a9yKi6IML0RsOjrWsVUZ442A8AOFKjKAUOqwNi2aiT9wrfnwX2lmZBV8/mkFJAi7+jym8HA2jok=
+INFO:Bank:New balance: 900 on account account1.
+INFO:Bank:Message delivered to bastian with response X2WdWvtVd4QaovV4wZDpn6VGctsvuj9q85MjajhdOa37q9zlu+gG6j7Bvgb8k19fWz67ufKiOJLJqHMa7xam6arMdhcwyOJCjqQAG7qBYoyPELZ5DhJjKEj0rqF2XeWhYVamdXRwS3yq/pjI3HCx8NBDU8mJPoZotcGTQJFG7nIW/Z+DA3ujf3n8+6u/tTdvJc/LMeE5lSlK04m7A3e/AIXuWO7xrleMdse4S5vRVLO92acHYNjJ7Sk4p0J8sR/Yd0fPdrRHNI5FTC8MUzjADv3XEckRPxjcm5lNVteviG1tCeQYFAEqlRe2TXDAAQPoEQNEiqMnu6oArpvgmyUNxYK0hAulqGjCnk6u697mZjFMSG1cSBh6+UZfMTZsSkkCCLFZr7nNj56lgUh6BhY87JnUTL8Sr/sxLHBd5z2GJdFMVYFO0xCHnpK1dv7X78ps/MmXoHpAckmWfsufffyQt/zkH4Xu2R7cVvxIDUXIQXSqZSWWbjEMuwB8lciuzxZyYfc6XVuFbI86OeNHni/PPHx8dWOGl5aBHy2BTJvhBg7AxnSwx8gAu5H3CptkuPv0B+8A8XuTE220FplPf7cNv32e763bxVjOAtWQbX+3lnDP48loYZi9yQLUO7t8c/fFpbrTkaSg389gBfT/PrPgK1JTueCZdoIBLaRt2W1CLMg=
 INFO:Person:Message delivered to bank with response None
 INFO:Bank:Authenticated: bastian
 INFO:Bank:Person bastian requested to withdraw 100 from account account2.
@@ -32,8 +32,8 @@ INFO:Bank:Person bastian authorized to manage account2 as their personal account
 INFO:Bank:New balance: 1000 on account account2.
 INFO:Person:Message delivered to bank with response None
 INFO:Person:Client closed due to limited duration.
-INFO:Server:Client bastian deregistered.
-INFO:Person:Client closed due to limited duration.
 INFO:Server:Client eifert deregistered.
+INFO:Person:Client closed due to limited duration.
+INFO:Server:Client bastian deregistered.
 INFO:Bank:Client closed due to limited duration.
 INFO:Server:Client bank deregistered.
